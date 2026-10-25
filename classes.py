@@ -1,5 +1,6 @@
 
 
+
 APPEARANCE = {
     "COVERED": ".",
     "CHECKED": "0",
@@ -70,7 +71,7 @@ class Board:
     def __repr__(self):
         return f"Board{self.rows, self.cols}"
 
-    
+
 # if __name__ == "__main__":
     # c = Cell(0, 0)
     # print(c.display())
@@ -79,4 +80,3 @@ class Board:
     # print(b)
     # b.create_board()
     # b.display_board()
-

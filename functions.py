@@ -1,3 +1,4 @@
+
 def parse_input(string):
     parts = string.strip().lower().split()
 
