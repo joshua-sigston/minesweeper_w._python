@@ -1,4 +1,4 @@
-
+import random
 
 
 APPEARANCE = {
@@ -13,17 +13,16 @@ class Cell:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-        self.status = "unchecked"
+        self.is_flagged = False
 
 
     # toggle function to change the display of a none mine cell
-    def toggle(self, text):        
+    def toggle(self, text): 
         if text == "flag":
-            self.status = "FLAG" 
-            return self.status
+            self.is_flagged = not self.is_flagged
 
     def display(self):
-        if self.status == "FLAG":
+        if self.is_flagged:
             return APPEARANCE["FLAG"]
         else:
             return APPEARANCE["COVERED"]
@@ -34,7 +33,7 @@ class Cell:
 # mine cell, position to be predetermined when user selects board size
 class Mine(Cell):
     def __init__(self, x, y):
-        super().__init(x, y)
+        super().__init__(x, y)
     
     def display(self):
         return APPEARANCE["MINE"]
@@ -47,6 +46,22 @@ class Board:
         self.create_board()
 
         self.num_mines = 0
+
+    def in_bounds(self, x, y):
+        return 0 <= x < self.rows and 0 <= y < self.cols
+
+    # def create_mines(self):
+    #     r = self.rows
+    #     c = self.cols
+
+    #     mine_coordinates = []
+
+    #     num_of_mines = (r * c * 40) // 100
+    #     number_of_mines_to_place = random.randint(0, num_of_mines)
+    #     spots = [(row, col) for row in range(r) for col in range(c)]
+    #     for row, col in random.sample(spots, number_of_mines_to_place):
+    #         mine_coordinates.append((row, col))
+    #     return mine_coordinates, num_of_mines
 
     def create_board(self):
         grid = []
@@ -67,8 +82,13 @@ class Board:
                 print(self.grid[r][c].display(), end=" ")
             print()
 
+
     # funciton passes to Cell in order to change display of cell
     def toggle(self, x, y, status):
+        if not self.in_bounds(x, y):
+            print("Those numbers are off the board.")
+            return
+
         self.grid[x][y].toggle(status)
 
     def __repr__(self):
