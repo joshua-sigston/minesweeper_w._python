@@ -1,4 +1,5 @@
 
+# function will be command to use during game for user
 def parse_input(string):
     parts = string.strip().lower().split()
 
@@ -20,6 +21,7 @@ def parse_input(string):
 
     return ("Invalid", "Uknown Command")
 
+# function takes user input to determine board size
 def start_game(string):
     parts = string.strip().lower().split()
 

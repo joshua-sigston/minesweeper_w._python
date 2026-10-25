@@ -15,8 +15,9 @@ class Cell:
         self.y = y
         self.status = "unchecked"
 
-    def toggle(self, text):
-        
+
+    # toggle function to change the display of a none mine cell
+    def toggle(self, text):        
         if text == "flag":
             self.status = "FLAG" 
             return self.status
@@ -30,6 +31,7 @@ class Cell:
     def __repr__(self):
         return f"Cell{self.x, self.y}"
 
+# mine cell, position to be predetermined when user selects board size
 class Mine(Cell):
     def __init__(self, x, y):
         super().__init(x, y)
@@ -65,6 +67,7 @@ class Board:
                 print(self.grid[r][c].display(), end=" ")
             print()
 
+    # funciton passes to Cell in order to change display of cell
     def toggle(self, x, y, status):
         self.grid[x][y].toggle(status)
 
