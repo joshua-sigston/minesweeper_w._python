@@ -13,7 +13,7 @@ def parse_input(string):
         return (command, 0 , 0)
     
     if len(parts) != 3:
-        return ("Invalid", "Must enter 2 numbers. Example: '0 10' Please enter a blank line between numbers.")
+        return ("Invalid", "Must enter 2 numbers. Example: '0 10.' Please leave a space between numbers.")
 
     if command in ("flag", "check"):
         try:
@@ -40,7 +40,6 @@ def create_board_size(string):
         rows = int(parts[0])
         cols = int(parts[1])
     except ValueError:
-        print("Please enter 2 numbers")
         return ("Invalid", "Please enter valid numbers")
 
     # checks that number of cols and rows are both greater than 0

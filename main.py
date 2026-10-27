@@ -30,8 +30,8 @@ def main():
     r, c = start_game()
 
     b = Board(r, c)
-    # # print(b.create_mines())
-    # # b.create_mines()
+    print(b.create_mines())
+    b.create_mines()
     b.display_board()
 
 
@@ -41,9 +41,13 @@ def main():
         if command == "quit":
             break
 
-        if command == "flag":
+        if command == "flag" or command == "check":
             b.toggle(x, y, command)
+            game_over = b.display_board()
+            if game_over:
+                break
             b. display_board()
+        
 
 
 

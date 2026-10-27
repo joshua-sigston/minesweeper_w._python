@@ -1,4 +1,5 @@
 import random
+from re import X
 
 
 APPEARANCE = {
@@ -17,7 +18,7 @@ class Cell:
 
 
     # toggle function to change the display of a none mine cell
-    def toggle(self, text): 
+    def toggle(self, text):
         if text == "flag":
             self.is_flagged = not self.is_flagged
 
@@ -34,34 +35,57 @@ class Cell:
 class Mine(Cell):
     def __init__(self, x, y):
         super().__init__(x, y)
+        self.found = False
+        self.flagged = False
+
+    def toggle(self, status):
+        print("min toggle triggered")
+        if status == "check":
+            self.found = not self.found
+        elif status == "flag":
+            self.flagged = not self.flagged
+        else:
+            self.found = False
     
     def display(self):
-        return APPEARANCE["MINE"]
+        if self.found:
+            return APPEARANCE["MINE"]
+        elif self.flagged:
+            return APPEARANCE["FLAG"]
+        else:
+            return APPEARANCE["COVERED"]
 
 class Board:
     def __init__(self, rows, cols):
         self.rows = rows
         self.cols = cols
+        self.mines_discovered = False
 
         self.create_board()
 
         self.num_mines = 0
 
+        self.mine_coordinates = []
+
+        self.x = None
+        self.y = None
+
     def in_bounds(self, x, y):
         return 0 <= x < self.rows and 0 <= y < self.cols
 
-    # def create_mines(self):
-    #     r = self.rows
-    #     c = self.cols
+    def create_mines(self):
+        r = self.rows
+        c = self.cols
 
-    #     mine_coordinates = []
-
-    #     num_of_mines = (r * c * 40) // 100
-    #     number_of_mines_to_place = random.randint(0, num_of_mines)
-    #     spots = [(row, col) for row in range(r) for col in range(c)]
-    #     for row, col in random.sample(spots, number_of_mines_to_place):
-    #         mine_coordinates.append((row, col))
-    #     return mine_coordinates, num_of_mines
+        num_of_mines = (r * c * 40) // 100
+        number_of_mines_to_place = random.randint(0, num_of_mines)
+        spots = [(row, col) for row in range(r) for col in range(c)]
+        for r, c in random.sample(spots, number_of_mines_to_place):
+            x = r
+            y = c
+            self.mine_coordinates.append((x, y))
+            self.grid[x][y] = Mine(x, y)
+        return self.mine_coordinates, num_of_mines
 
     def create_board(self):
         grid = []
@@ -81,6 +105,12 @@ class Board:
             for c in range(self.cols):
                 print(self.grid[r][c].display(), end=" ")
             print()
+        
+        if (self.x, self.y) in self.mine_coordinates:
+            self.mines_discovered = True
+            print("You stepped on a mine! GAME OVER")
+            return self.mines_discovered
+            
 
 
     # funciton passes to Cell in order to change display of cell
@@ -89,7 +119,18 @@ class Board:
             print("Those numbers are off the board.")
             return
 
-        self.grid[x][y].toggle(status)
+        cell = self.grid[x][y]
+
+        self.x = x
+        self.y = y
+
+        
+        if isinstance(cell, Mine):
+            print("checking mine")
+            self.grid[x][y].toggle(status)
+        else:
+            self.grid[x][y].toggle(status)
+            
 
     def __repr__(self):
         return f"Board{self.rows, self.cols}"
