@@ -39,9 +39,13 @@ class Mine(Cell):
         self.flagged = False
 
     def toggle(self, status):
-        print("min toggle triggered")
+        print("mine toggle triggered")
         if status == "check":
-            self.found = not self.found
+            if self.flagged:
+                self.flagged = not self.flagged
+                self.found = not self.found
+            else:
+                self.found = not self.found
         elif status == "flag":
             self.flagged = not self.flagged
         else:
@@ -54,6 +58,9 @@ class Mine(Cell):
             return APPEARANCE["FLAG"]
         else:
             return APPEARANCE["COVERED"]
+
+    def __repr__(self):
+        return f"Cell{self.x, self.y} {self.flagged}"
 
 class Board:
     def __init__(self, rows, cols):
@@ -105,11 +112,15 @@ class Board:
             for c in range(self.cols):
                 print(self.grid[r][c].display(), end=" ")
             print()
-        
+
+        # if user flags mine, does not end game. If use checks flagged mine, removes flag and ends game
         if (self.x, self.y) in self.mine_coordinates:
-            self.mines_discovered = True
-            print("You stepped on a mine! GAME OVER")
-            return self.mines_discovered
+            if self.grid[self.x][self.y].flagged:
+                return
+            else:
+                self.mines_discovered = True
+                print("You stepped on a mine! GAME OVER")
+                return self.mines_discovered
             
 
 
@@ -124,7 +135,6 @@ class Board:
         self.x = x
         self.y = y
 
-        
         if isinstance(cell, Mine):
             print("checking mine")
             self.grid[x][y].toggle(status)
