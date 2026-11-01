@@ -9,24 +9,34 @@ APPEARANCE = {
     "MINE": "*"
 }
 
+DIRECTIONS =[
+    (-1, 0),
+    (0, -1), (0, 1),
+    (1, 0),
+]
+
 
 class Cell:
     def __init__(self, x, y):
         self.x = x
         self.y = y
         self.is_flagged = False
+        self.appearance = "."
 
 
     # toggle function to change the display of a none mine cell
-    def toggle(self, text):
+    def toggle(self, text, num):
         if text == "flag":
             self.is_flagged = not self.is_flagged
+        else:
+            if num > 0 or not None:
+                self.appearance = num
 
     def display(self):
         if self.is_flagged:
             return APPEARANCE["FLAG"]
         else:
-            return APPEARANCE["COVERED"]
+            return self.appearance
 
     def __repr__(self):
         return f"Cell{self.x, self.y}"
@@ -38,8 +48,8 @@ class Mine(Cell):
         self.found = False
         self.flagged = False
 
-    def toggle(self, status):
-        print("mine toggle triggered")
+    def toggle(self, status, num):
+        # if user flags mine, does not end game. If use checks flagged mine, removes flag and ends game
         if status == "check":
             if self.flagged:
                 self.flagged = not self.flagged
@@ -70,9 +80,10 @@ class Board:
 
         self.create_board()
 
-        self.num_mines = 0
+        self.num_of_mines = 0
 
         self.mine_coordinates = []
+        self.num_neighbor_mines = None
 
         self.x = None
         self.y = None
@@ -84,10 +95,10 @@ class Board:
         r = self.rows
         c = self.cols
 
-        num_of_mines = (r * c * 40) // 100
-        number_of_mines_to_place = random.randint(0, num_of_mines)
+        max_num_of_mines = (r * c * 40) // 100
+        num_of_mines = random.randint(0, max_num_of_mines)
         spots = [(row, col) for row in range(r) for col in range(c)]
-        for r, c in random.sample(spots, number_of_mines_to_place):
+        for r, c in random.sample(spots, num_of_mines):
             x = r
             y = c
             self.mine_coordinates.append((x, y))
@@ -121,9 +132,25 @@ class Board:
                 self.mines_discovered = True
                 print("You stepped on a mine! GAME OVER")
                 return self.mines_discovered
-            
 
-
+    # check neighbors for mines, count the number of mines and display that number on the cell checks
+    def check_neighbors(self, x, y):  
+        count = 0        
+        neighbors = []
+        for dr, dc in DIRECTIONS:
+            #  adds dr to x
+            nr = x + dr
+            #  adds dc to y
+            nc = y + dc
+            if self.in_bounds(nr, nc):
+                neighbors.append((nr, nc))
+        # print (neighbors)
+        for i in neighbors:
+            if i in self.mine_coordinates:
+                count += 1
+        self.num_neighbor_mines = count
+        return neighbors
+        
     # funciton passes to Cell in order to change display of cell
     def toggle(self, x, y, status):
         if not self.in_bounds(x, y):
@@ -137,11 +164,11 @@ class Board:
 
         if isinstance(cell, Mine):
             print("checking mine")
-            self.grid[x][y].toggle(status)
+            self.grid[x][y].toggle(status, self.num_neighbor_mines)
         else:
-            self.grid[x][y].toggle(status)
+            self.check_neighbors(x, y)
+            self.grid[x][y].toggle(status, self.num_neighbor_mines)
             
-
     def __repr__(self):
         return f"Board{self.rows, self.cols}"
 

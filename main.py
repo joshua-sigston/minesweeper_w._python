@@ -31,7 +31,6 @@ def main():
 
     b = Board(r, c)
     print(b.create_mines())
-    b.create_mines()
     b.display_board()
 
 
@@ -46,7 +45,6 @@ def main():
             game_over = b.display_board()
             if game_over:
                 break
-            b. display_board()
         
 
 
