@@ -10,9 +10,9 @@ APPEARANCE = {
 }
 
 DIRECTIONS =[
-    (-1, 0),
-    (0, -1), (0, 1),
-    (1, 0),
+    (-1, -1), (-1, 0), (-1, 1),
+    (0, -1),           (0, 1),
+    (1, -1),  (1, 0),  (1, 1),
 ]
 
 
@@ -25,7 +25,7 @@ class Cell:
 
 
     # toggle function to change the display of a none mine cell
-    def toggle(self, text, num):
+    def toggle(self, text, num=None):
         if text == "flag":
             self.is_flagged = not self.is_flagged
         else:
@@ -187,14 +187,18 @@ class Board:
         self.x = x
         self.y = y
 
-        if isinstance(cell, Mine):
-            print("checking mine")
+        if status == "flag":
+            # flip the flag on this cell, whether it is a mine or not
+            cell.toggle(status)
+            # stop here so a flag does not open the cell
+            return
+        # the command is check, and this cell is a mine
+        elif isinstance(cell, Mine):
+            # toggles mine found to be True, game over
             self.grid[x][y].toggle(status)
         else:
+            # check on a safe cell: open it, and continue only when its count is 0
             self.reveal(x, y)
-            
-            # self.check_neighbors(x, y)
-            # self.grid[x][y].toggle(status, self.num_neighbor_mines)
             
     def __repr__(self):
         return f"Board{self.rows, self.cols}"
