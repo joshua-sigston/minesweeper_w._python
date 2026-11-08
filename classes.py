@@ -48,7 +48,7 @@ class Mine(Cell):
         self.found = False
         self.flagged = False
 
-    def toggle(self, status, num):
+    def toggle(self, status):
         # if user flags mine, does not end game. If use checks flagged mine, removes flag and ends game
         if status == "check":
             if self.flagged:
@@ -134,8 +134,8 @@ class Board:
                 return self.mines_discovered
 
     # check neighbors for mines, count the number of mines and display that number on the cell checks
-    def check_neighbors(self, x, y):  
-        count = 0        
+    #  get neighbor coordinates
+    def get_neighbor_coordinates(self, x, y):
         neighbors = []
         for dr, dc in DIRECTIONS:
             #  adds dr to x
@@ -144,13 +144,38 @@ class Board:
             nc = y + dc
             if self.in_bounds(nr, nc):
                 neighbors.append((nr, nc))
-        # print (neighbors)
-        for i in neighbors:
-            if i in self.mine_coordinates:
-                count += 1
-        self.num_neighbor_mines = count
         return neighbors
+
+    # if neighbor is a mine, do not add to list of neighbors to run recursison on
+    def filter_neighbors(self, neighbors):
+        filtered_list = []
+        for x, y in neighbors:
+            cell = self.grid[x][y]
+            if isinstance(cell, Mine):
+                continue
+            else:
+                filtered_list.append((x, y))
+        return filtered_list
+
+    def reveal(self, x, y):
+        cell = self.grid[x][y]
+        # already opened, flagged or a mine: stop
+        if cell.is_flagged or cell.appearance != ".":
+            return
+
+        # create a list of neighbors
+        neighbors = self.get_neighbor_coordinates(x, y)
+        # filter out neighbors that are not mines
+        safe = self.filter_neighbors(neighbors)
+        # change appearance of cell to the number of mines arround it
+        count = len(neighbors) - len(safe)
+        cell.appearance = count
         
+        # if count = 0 recurssion.
+        if count == 0:
+            for nx, ny in safe:
+                self.reveal(nx, ny)
+
     # funciton passes to Cell in order to change display of cell
     def toggle(self, x, y, status):
         if not self.in_bounds(x, y):
@@ -164,10 +189,12 @@ class Board:
 
         if isinstance(cell, Mine):
             print("checking mine")
-            self.grid[x][y].toggle(status, self.num_neighbor_mines)
+            self.grid[x][y].toggle(status)
         else:
-            self.check_neighbors(x, y)
-            self.grid[x][y].toggle(status, self.num_neighbor_mines)
+            self.reveal(x, y)
+            
+            # self.check_neighbors(x, y)
+            # self.grid[x][y].toggle(status, self.num_neighbor_mines)
             
     def __repr__(self):
         return f"Board{self.rows, self.cols}"
