@@ -30,14 +30,19 @@ def main():
     r, c = start_game()
 
     b = Board(r, c)
-    print(b.create_mines())
+    b.create_mines()
+    b.create_safe_cell_list()
     b.display_board()
+
 
 
     while True:
         command, x, y = play_game()
 
         if command == "quit":
+            break
+
+        if b.win == True:
             break
 
         if command == "flag" or command == "check":

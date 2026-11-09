@@ -76,12 +76,13 @@ class Board:
     def __init__(self, rows, cols):
         self.rows = rows
         self.cols = cols
+        self.safe_cells_list = []
         self.mines_discovered = False
+        self.win = False
 
         self.create_board()
 
         self.num_of_mines = 0
-
         self.mine_coordinates = []
         self.num_neighbor_mines = None
 
@@ -107,13 +108,22 @@ class Board:
 
     def create_board(self):
         grid = []
+        cells = []
         for r in range(self.rows):
             row = []
             for c in range(self.cols):
+                cells.append((r, c))
                 row.append(Cell(r, c))
             grid.append(row)
-        
         self.grid = grid
+        return 
+    
+    def create_safe_cell_list(self):
+        self.safe_cells_list = []
+        for x in range(self.rows):
+            for y in range(self.cols):
+                if (x, y) not in self.mine_coordinates:
+                    self.safe_cells_list.append((x, y))
 
     def display_board(self):
         print(" ", end=" ")
@@ -123,6 +133,10 @@ class Board:
             for c in range(self.cols):
                 print(self.grid[r][c].display(), end=" ")
             print()
+            
+        if len(self.safe_cells_list) == 0:
+            self.win = True
+            return self.win
 
         # if user flags mine, does not end game. If use checks flagged mine, removes flag and ends game
         if (self.x, self.y) in self.mine_coordinates:
@@ -159,9 +173,13 @@ class Board:
 
     def reveal(self, x, y):
         cell = self.grid[x][y]
+
         # already opened, flagged or a mine: stop
         if cell.is_flagged or cell.appearance != ".":
             return
+
+        if (x, y) in self.safe_cells_list:
+            self.safe_cells_list.remove((x, y))
 
         # create a list of neighbors
         neighbors = self.get_neighbor_coordinates(x, y)
